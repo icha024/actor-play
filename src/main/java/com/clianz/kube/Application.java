@@ -11,7 +11,7 @@ public class Application {
         log.info("Starting...");
 
         EventsHub eventsHub = new EventsHub();
-        eventsHub.registerActor(new HttpServerActor());
+//        eventsHub.registerActor(new HttpServerActor());
         eventsHub.registerActor(new ListenerActor());
         eventsHub.start();
     }
