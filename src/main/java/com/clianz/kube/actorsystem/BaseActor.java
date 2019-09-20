@@ -1,5 +1,6 @@
 package com.clianz.kube.actorsystem;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,15 +11,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Slf4j
 public abstract class BaseActor implements Runnable {
 
-    @Getter
+    @Getter(AccessLevel.PROTECTED)
     private final String id;
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private final BlockingQueue<Event> inboundQueue;
     private final BlockingQueue<Event> outboundQueue = EventsHub.eventsHub;
 
     public BaseActor() {
         this.inboundQueue = new LinkedBlockingQueue<>(128);
-        this.id = this.getClass().getSimpleName() + "-" + UUID.randomUUID().toString().substring(28);
+        this.id = String.format("%s-%s", this.getClass()
+                                             .getSimpleName(), UUID.randomUUID()
+                                                                   .toString()
+                                                                   .substring(28));
         Thread thread = new Thread(this);
         thread.start();
     }

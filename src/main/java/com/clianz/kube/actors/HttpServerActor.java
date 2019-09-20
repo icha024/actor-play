@@ -4,6 +4,7 @@ import com.clianz.kube.actorsystem.BaseActor;
 import com.clianz.kube.actorsystem.Event;
 import com.clianz.kube.httpserver.EndpointHandler;
 import com.clianz.kube.httpserver.HttpServer;
+import io.undertow.server.HttpServerExchange;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
@@ -14,13 +15,15 @@ public class HttpServerActor extends BaseActor {
     @Override
     protected void init() {
         super.init();
-        EndpointHandler statusEndpoint = new EndpointHandler("/", exchange -> {
-            publishEvent(new Event("context", "a message from http listener"));
-            exchange.getResponseSender()
-                    .send("up");
-        });
-        HttpServer server = new HttpServer(Collections.singletonList(statusEndpoint));
+        EndpointHandler rootEndpoint = new EndpointHandler("/", this::rootEndpointHandler);
+        HttpServer server = new HttpServer(Collections.singletonList(rootEndpoint));
         server.start();
+    }
+
+    private void rootEndpointHandler(HttpServerExchange exchange) {
+        publishEvent(new Event("http.endpoint.root", "HTTP Event Triggered"));
+        exchange.getResponseSender()
+                .send("up");
     }
 
     @Override

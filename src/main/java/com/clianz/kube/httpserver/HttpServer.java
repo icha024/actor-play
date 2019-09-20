@@ -14,10 +14,10 @@ public class HttpServer {
     public HttpServer(List<EndpointHandler> endpointHandlers) {
         PathHandler pathHander = getPathHandler(endpointHandlers);
         Undertow.Builder builder = Undertow.builder()
-                .setIoThreads(2)
-                .setWorkerThreads(10)
-                .addHttpListener(8080, "0.0.0.0")
-                .setHandler(pathHander);
+                                           .setIoThreads(2)
+                                           .setWorkerThreads(10)
+                                           .addHttpListener(8080, "0.0.0.0")
+                                           .setHandler(pathHander);
         this.server = builder.build();
     }
 
@@ -26,7 +26,7 @@ public class HttpServer {
         endpointHandlers.forEach(eachEndpointHandler -> pathHander.addExactPath(
                 eachEndpointHandler.getEndpoint(),
                 exchange -> eachEndpointHandler.getAction()
-                        .accept(exchange)
+                                               .accept(exchange)
         ));
         return pathHander;
     }

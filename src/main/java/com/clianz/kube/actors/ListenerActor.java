@@ -10,6 +10,5 @@ public class ListenerActor extends BaseActor {
     @Override
     protected void consumeEvent(Event event) {
         log.info("{} received {}", getId(), event);
-//        publishEvent(event); // Infinite message loop
     }
 }
