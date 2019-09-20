@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class EventsHub implements Runnable {
     private List<BaseActor> actors = new ArrayList<>();
 
-    protected static BlockingQueue<Event> eventsHub = new LinkedBlockingQueue<>(1024);
+    static BlockingQueue<Event> eventsHub = new LinkedBlockingQueue<>(1024);
 
     public void registerActor(BaseActor ... newActors) {
         this.actors.addAll(Arrays.asList(newActors));

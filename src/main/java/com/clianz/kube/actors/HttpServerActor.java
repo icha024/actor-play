@@ -14,14 +14,17 @@ public class HttpServerActor extends BaseActor {
     @Override
     protected void init() {
         super.init();
-        EndpointHandler statusEndpoint = new EndpointHandler("/", exchange -> exchange.getResponseSender()
-                                                                                      .send("up"));
+        EndpointHandler statusEndpoint = new EndpointHandler("/", exchange -> {
+            publishEvent(new Event("context", "a message from http listener"));
+            exchange.getResponseSender()
+                    .send("up");
+        });
         HttpServer server = new HttpServer(Collections.singletonList(statusEndpoint));
         server.start();
     }
 
     @Override
     protected void consumeEvent(Event msg) {
-        log.info("Actor2 Received: {}", msg);
+        log.info("{} received {}", getId(), msg);
     }
 }

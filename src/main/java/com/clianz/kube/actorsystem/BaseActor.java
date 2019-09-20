@@ -18,7 +18,7 @@ public abstract class BaseActor implements Runnable {
 
     public BaseActor() {
         this.inboundQueue = new LinkedBlockingQueue<>(128);
-        this.id = this.getClass().getName() + "-" + UUID.randomUUID().toString().substring(16);
+        this.id = this.getClass().getSimpleName() + "-" + UUID.randomUUID().toString().substring(28);
         Thread thread = new Thread(this);
         thread.start();
     }
