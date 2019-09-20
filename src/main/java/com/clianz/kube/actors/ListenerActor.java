@@ -11,7 +11,6 @@ import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.util.FS;
 
 import java.io.File;
 
@@ -20,43 +19,27 @@ public class ListenerActor extends BaseActor {
 
     @Override
     protected void init() {
-        log.info("Getting GIT..........");
-        try {
-            SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-                @Override
-                protected void configure(OpenSshConfig.Host hc, Session session) {
-                    // Do nothing
-                }
+        String branchToClone = "master";
+        String gitRepoUri = "ssh://git@github.com/icha024/kube-deploy-sync.git";
+        String tmpRepoNamePrefix = "TestGitRepository";
+        log.debug("Getting GIT..........");
 
-                @Override
-                protected void configureJSch(JSch jsch) {
-                    super.configureJSch(jsch);
-                    try {
-                        jsch.addIdentity("/tmp/kube-dep-sync_id_rsa");
-                        log.info("CONFIGURED PRIVATE KEY.....");
-                    } catch (JSchException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
+        try {
+            SshSessionFactory sshSessionFactory = createSshSessionFactory();
+
+            File localRepoFilePath = File.createTempFile(tmpRepoNamePrefix, "", new File("/tmp"));
+            localRepoFilePath.delete();
 
             Git git = Git.cloneRepository()
+                         .setBranch(branchToClone)
+                         .setCloneAllBranches(false)
                          .setTransportConfigCallback(transport -> {
                              SshTransport sshTransport = (SshTransport) transport;
                              sshTransport.setSshSessionFactory(sshSessionFactory);
                          })
-                         .setURI("ssh://git@github.com/icha024/kube-deploy-sync.git")
-                         .setDirectory(new File("/tmp/newRepo"))
+                         .setURI(gitRepoUri)
+                         .setDirectory(localRepoFilePath)
                          .call();
-
-
-//            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-//            Repository repository = builder.setGitDir(new File("/home/ian/git/kube-deploy-sync/.git"))
-//                                           .readEnvironment() // scan environment GIT_* variables
-//                                           .findGitDir() // scan up the file system tree
-//                                           .build();
-//            Git git = new Git(repository);
 
             git.log()
                .call()
@@ -66,8 +49,29 @@ public class ListenerActor extends BaseActor {
 
         } catch (Exception e) {
             log.error("Error opening repo", e);
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
         }
+    }
+
+    private JschConfigSessionFactory createSshSessionFactory() {
+        return new JschConfigSessionFactory() {
+            @Override
+            protected void configure(OpenSshConfig.Host hc, Session session) {
+                // Do nothing
+            }
+
+            @Override
+            protected void configureJSch(JSch jsch) {
+                super.configureJSch(jsch);
+                try {
+                    jsch.addIdentity("/tmp/kube-dep-sync_id_rsa");
+                    log.debug("CONFIGURED PRIVATE KEY.....");
+                } catch (JSchException e) {
+                    log.error("Error connecting to Git", e);
+//                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     @Override
