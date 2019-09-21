@@ -1,6 +1,5 @@
 package com.clianz.actor;
 
-import com.clianz.actor.actors.GitActor;
 import com.clianz.actor.actors.HttpServerActor;
 import com.clianz.actor.actors.ListenerActor;
 import com.clianz.actor.actorsystem.EventsHub;

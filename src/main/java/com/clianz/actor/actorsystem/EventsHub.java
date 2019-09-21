@@ -44,28 +44,10 @@ public class EventsHub {
         return true;
     }
 
-//    public void getEvent() {
-//        long currentSubIdx = subCounter.get();
-//        if (currentSubIdx == pubCounter.get()) {
-//            return Optional.empty();
-//        }
-//        while (true) {
-//            int subIdx = (int) currentSubIdx % BUFF_SIZE;;
-//            EventHolder currentEventHolder = eventHolderArray[subIdx];
-//            actors.forEach(eachActor -> {
-//                log.info("SubIdx {} -> {}", subIdx, eachActor.getId());
-//                executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
-//            });
-//            currentSubIdx = subCounter.incrementAndGet();
-//        }
-//    }
-
     public void start() {
-
         ThreadPoolExecutor executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE,
                 60, TimeUnit.SECONDS, new BlockingTransferQueue<>());
         executor.prestartAllCoreThreads();
-//        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         long currentSubIdx = subCounter.get();
         while (true) {
@@ -82,31 +64,10 @@ public class EventsHub {
 
             EventHolder currentEventHolder = eventHolderArray[subIdx];
             actors.forEach(eachActor -> {
-//                boolean success = false;
-//                while (!success) {
                 log.debug("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
                 executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
-//                    success = submitTask(executor, currentEventHolder, eachActor);
-//                    if (!success) {
-//                        try {
-//                            Thread.sleep(WAIT_SLEEP_INTERVAL);
-//                        } catch (InterruptedException e) {
-//                            // Do nothing
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
             });
             currentSubIdx = subCounter.incrementAndGet();
         }
     }
-
-//    private boolean submitTask(ThreadPoolExecutor executor, EventHolder currentEventHolder, BaseActor eachActor) {
-//        try {
-//            executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
-//            return true;
-//        } catch (RejectedExecutionException rex) {
-//            return false;
-//        }
-//    }
 }
