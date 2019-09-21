@@ -28,6 +28,6 @@ public class HttpServerActor extends BaseActor {
 
     @Override
     protected void consumeEvent(Event msg) {
-        log.info("{} received {}", getId(), msg);
+//        log.info("{} received {}", getId(), msg);
     }
 }

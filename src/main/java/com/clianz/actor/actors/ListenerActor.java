@@ -10,5 +10,10 @@ public class ListenerActor extends BaseActor {
     @Override
     protected void consumeEvent(Event event) {
         log.info("received {}", event);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

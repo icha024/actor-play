@@ -2,20 +2,25 @@ package com.clianz.actor.actorsystem;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 @Slf4j
-public abstract class BaseActor implements Runnable {
+public abstract class BaseActor {
 
     @Getter(AccessLevel.PROTECTED)
     private final String id;
     @Getter(AccessLevel.PACKAGE)
     private final BlockingQueue<Event> inboundQueue;
-    private final BlockingQueue<Event> outboundQueue = EventsHub.eventsHub;
+//    private final BlockingQueue<Event> outboundQueue = EventsHub.eventsHub;
+
+    @Setter
+    private Consumer<Event> pubHandler;
 
     public BaseActor() {
         this.inboundQueue = new LinkedBlockingQueue<>(128);
@@ -23,25 +28,12 @@ public abstract class BaseActor implements Runnable {
                                              .getSimpleName(), UUID.randomUUID()
                                                                    .toString()
                                                                    .substring(28));
-        Thread thread = new Thread(this);
-        thread.start();
+        init();
     }
 
-    @Override
-    public void run() {
-        try {
-            init();
-            if (inboundQueue != null) {
-                while (true) {
-                    Event event = inboundQueue.take();
-                    if (!this.id.equals(event.getSender())) {
-                        consumeEvent(event);
-                    }
-                }
-            }
-        } catch (
-                InterruptedException ex) {
-            log.error("Error in Actor: ", ex);
+    public void assignEvent(Event event) {
+        if (!this.id.equals(event.getSender())) {
+            consumeEvent(event);
         }
     }
 
@@ -50,10 +42,7 @@ public abstract class BaseActor implements Runnable {
 
     protected void publishEvent(Event event) {
         event.setSender(this.id);
-        boolean sentSuccessful = outboundQueue.offer(event);
-        if (!sentSuccessful) {
-            log.warn("Error sending to Event Hub. Actor '{}', Event: {}", getId(), event);
-        }
+        pubHandler.accept(event);
     }
 
     protected abstract void consumeEvent(Event event);
