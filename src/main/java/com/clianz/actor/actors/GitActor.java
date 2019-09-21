@@ -18,7 +18,7 @@ import java.io.File;
 public class GitActor extends BaseActor {
 
     @Override
-    protected void init() {
+    protected void postConstruct() {
         String branchToClone = "master";
         String gitRepoUri = "ssh://git@github.com/icha024/kube-deploy-sync.git";
         String tmpRepoNamePrefix = "TestGitRepository";

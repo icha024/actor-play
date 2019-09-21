@@ -14,6 +14,7 @@ public class Application {
         eventsHub.registerActor(new HttpServerActor());
         eventsHub.registerActor(new ListenerActor());
 //        eventsHub.registerActor(new GitActor());
+        eventsHub.registerActor(event -> log.debug("Received {}", event));
         eventsHub.start();
     }
 }

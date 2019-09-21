@@ -33,6 +33,16 @@ public class EventsHub {
         actors.forEach(eachActor -> eachActor.setPubHandler(this::publish));
     }
 
+    public void registerActor(BaseActorFunctionalInterface baseActorFunctionalInterface) {
+        this.registerActor(new BaseActor() {
+            @Override
+            protected void consumeEvent(Event event) {
+                baseActorFunctionalInterface.consumeEvent(event);
+            }
+        });
+    }
+
+    @SuppressWarnings("WeakerAccess")
     public boolean publish(Event event) {
         if (subCounter.get() % BUFF_SIZE == (pubCounter.get() + 1) % BUFF_SIZE) {
             log.warn("Buffer too small, pub event failed.");
@@ -55,8 +65,7 @@ public class EventsHub {
                 try {
                     Thread.sleep(WAIT_SLEEP_INTERVAL);
                 } catch (InterruptedException e) {
-                    // Do nothing
-                    log.warn("Sleep interrupted.");
+                    log.warn("Sleep interrupted, {}", e.getMessage());
                 }
                 continue;
             }
@@ -65,7 +74,7 @@ public class EventsHub {
             EventHolder currentEventHolder = eventHolderArray[subIdx];
             actors.forEach(eachActor -> {
                 log.debug("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
-                executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
+                executor.submit(() -> eachActor.assignEvent(currentEventHolder.getEvent()));
             });
             currentSubIdx = subCounter.incrementAndGet();
         }

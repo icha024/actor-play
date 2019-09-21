@@ -17,7 +17,6 @@ public abstract class BaseActor {
     private final String id;
     @Getter(AccessLevel.PACKAGE)
     private final BlockingQueue<Event> inboundQueue;
-//    private final BlockingQueue<Event> outboundQueue = EventsHub.eventsHub;
 
     @Setter
     private Consumer<Event> pubHandler;
@@ -28,16 +27,16 @@ public abstract class BaseActor {
                                              .getSimpleName(), UUID.randomUUID()
                                                                    .toString()
                                                                    .substring(28));
-        init();
+        postConstruct();
     }
 
-    public void assignEvent(Event event) {
+    void assignEvent(Event event) {
         if (!this.id.equals(event.getSender())) {
             consumeEvent(event);
         }
     }
 
-    protected void init() {
+    protected void postConstruct() {
     }
 
     protected void publishEvent(Event event) {

@@ -13,8 +13,8 @@ import java.util.Collections;
 public class HttpServerActor extends BaseActor {
 
     @Override
-    protected void init() {
-        super.init();
+    protected void postConstruct() {
+        super.postConstruct();
         EndpointHandler rootEndpoint = new EndpointHandler("/", this::rootEndpointHandler);
         HttpServer server = new HttpServer(Collections.singletonList(rootEndpoint));
         server.start();
