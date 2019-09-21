@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -61,9 +58,8 @@ public class EventsHub {
     public void start() {
 
         ThreadPoolExecutor executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE,
-                60, TimeUnit.SECONDS, new SynchronousQueue<>());
+                60, TimeUnit.SECONDS, new BlockingTransferQueue<>());
         executor.prestartAllCoreThreads();
-//                60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1));
 //        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         long currentSubIdx = subCounter.get();
@@ -81,30 +77,31 @@ public class EventsHub {
 
             EventHolder currentEventHolder = eventHolderArray[subIdx];
             actors.forEach(eachActor -> {
-                boolean success = false;
-                while (!success) {
+//                boolean success = false;
+//                while (!success) {
                     log.info("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
-                    success = submitTask(executor, currentEventHolder, eachActor);
-                    if (!success) {
-                        try {
-                            Thread.sleep(WAIT_SLEEP_INTERVAL);
-                        } catch (InterruptedException e) {
-                            // Do nothing
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                    executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
+//                    success = submitTask(executor, currentEventHolder, eachActor);
+//                    if (!success) {
+//                        try {
+//                            Thread.sleep(WAIT_SLEEP_INTERVAL);
+//                        } catch (InterruptedException e) {
+//                            // Do nothing
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
             });
             currentSubIdx = subCounter.incrementAndGet();
         }
     }
 
-    private boolean submitTask(ThreadPoolExecutor executor, EventHolder currentEventHolder, BaseActor eachActor) {
-        try {
-            executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
-            return true;
-        } catch (RejectedExecutionException rex) {
-            return false;
-        }
-    }
+//    private boolean submitTask(ThreadPoolExecutor executor, EventHolder currentEventHolder, BaseActor eachActor) {
+//        try {
+//            executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
+//            return true;
+//        } catch (RejectedExecutionException rex) {
+//            return false;
+//        }
+//    }
 }
