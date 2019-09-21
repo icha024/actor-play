@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -14,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EventsHub {
 
     private static final int BUFF_SIZE = 4;
-    private static final int THREAD_POOL_SIZE = 2;
+    private static final int THREAD_POOL_SIZE = 1;
     private static final int WAIT_SLEEP_INTERVAL = 100;
 
     private List<BaseActor> actors = new ArrayList<>();
@@ -34,9 +33,15 @@ public class EventsHub {
         actors.forEach(eachActor -> eachActor.setPubHandler(this::publish));
     }
 
-    public void publish(Event event) {
+    public boolean publish(Event event) {
+        if (subCounter.get() % BUFF_SIZE == (pubCounter.get() + 1) % BUFF_SIZE) {
+            log.warn("Buffer too small, pub event failed.");
+            return false;
+        }
         int pubIdx = (int) pubCounter.getAndIncrement() % BUFF_SIZE;
+        log.debug("Pub to Idx: {}", pubIdx);
         eventHolderArray[pubIdx].setEvent(event);
+        return true;
     }
 
 //    public void getEvent() {
@@ -69,7 +74,7 @@ public class EventsHub {
                     Thread.sleep(WAIT_SLEEP_INTERVAL);
                 } catch (InterruptedException e) {
                     // Do nothing
-                    e.printStackTrace();
+                    log.warn("Sleep interrupted.");
                 }
                 continue;
             }
@@ -79,8 +84,8 @@ public class EventsHub {
             actors.forEach(eachActor -> {
 //                boolean success = false;
 //                while (!success) {
-                    log.info("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
-                    executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
+                log.debug("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
+                executor.submit(() -> eachActor.consumeEvent(currentEventHolder.getEvent()));
 //                    success = submitTask(executor, currentEventHolder, eachActor);
 //                    if (!success) {
 //                        try {
