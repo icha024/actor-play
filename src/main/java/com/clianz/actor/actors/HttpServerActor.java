@@ -1,6 +1,6 @@
 package com.clianz.actor.actors;
 
-import com.clianz.actor.actorsystem.BaseActor;
+import com.clianz.actor.actorsystem.Actor;
 import com.clianz.actor.actorsystem.Event;
 import com.clianz.actor.httpserver.EndpointHandler;
 import com.clianz.actor.httpserver.HttpServer;
@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 
 @Slf4j
-public class HttpServerActor extends BaseActor {
+public class HttpServerActor extends Actor {
 
     @Override
-    protected void postConstruct() {
-        super.postConstruct();
+    protected void init() {
+        super.init();
         EndpointHandler rootEndpoint = new EndpointHandler("/", this::rootEndpointHandler);
         HttpServer server = new HttpServer(Collections.singletonList(rootEndpoint));
         server.start();

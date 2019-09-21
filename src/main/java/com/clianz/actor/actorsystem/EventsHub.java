@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EventsHub {
 
     // FIXME: Make this config.
-    private static final int BUFF_SIZE = 4;
-    private static final int THREAD_POOL_SIZE = 1;
+    private static final int BUFF_SIZE = 1024 * 1024;
+    private static final int THREAD_POOL_SIZE = 4;
     private static final int WAIT_SLEEP_INTERVAL = 100;
 
-    private List<BaseActor> actors = new ArrayList<>();
+    private List<Actor> actors = new ArrayList<>();
     private EventHolder[] eventHolderArray = new EventHolder[BUFF_SIZE];
 
     private AtomicLong pubCounter = new AtomicLong();
@@ -32,13 +32,13 @@ public class EventsHub {
         }
     }
 
-    public void registerActor(BaseActor... newActors) {
+    public void registerActor(Actor... newActors) {
         this.actors.addAll(Arrays.asList(newActors));
         actors.forEach(eachActor -> eachActor.setPubHandler(this::publish));
     }
 
     public void registerActor(BaseActorFunctionalInterface baseActorFunctionalInterface) {
-        this.registerActor(new BaseActor() {
+        this.registerActor(new Actor() {
             @Override
             protected void consumeEvent(Event event) {
                 baseActorFunctionalInterface.consumeEvent(event);
@@ -53,7 +53,7 @@ public class EventsHub {
             return false;
         }
         int pubIdx = (int) pubCounter.getAndIncrement() % BUFF_SIZE;
-        log.debug("Pub to Idx: {}", pubIdx);
+//        log.debug("Pub to Idx: {}", pubIdx);
         eventHolderArray[pubIdx].setEvent(event);
         return true;
     }
@@ -77,7 +77,7 @@ public class EventsHub {
 
             EventHolder currentEventHolder = eventHolderArray[subIdx];
             actors.forEach(eachActor -> {
-                log.debug("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
+//                log.debug("Distribute subIdx {} -> {}", subIdx, eachActor.getId());
                 executor.submit(() -> eachActor.assignEvent(currentEventHolder.getEvent()));
             });
             currentSubIdx = subCounter.incrementAndGet();

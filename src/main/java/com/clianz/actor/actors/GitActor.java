@@ -1,6 +1,6 @@
 package com.clianz.actor.actors;
 
-import com.clianz.actor.actorsystem.BaseActor;
+import com.clianz.actor.actorsystem.Actor;
 import com.clianz.actor.actorsystem.Event;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -15,10 +15,10 @@ import org.eclipse.jgit.transport.SshTransport;
 import java.io.File;
 
 @Slf4j
-public class GitActor extends BaseActor {
+public class GitActor extends Actor {
 
     @Override
-    protected void postConstruct() {
+    protected void init() {
         String branchToClone = "master";
         String gitRepoUri = "ssh://git@github.com/icha024/kube-deploy-sync.git";
         String tmpRepoNamePrefix = "TestGitRepository";

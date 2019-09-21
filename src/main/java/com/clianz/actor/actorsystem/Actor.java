@@ -11,7 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 @Slf4j
-public abstract class BaseActor {
+public abstract class Actor {
 
     @Getter(AccessLevel.PROTECTED)
     private final String id;
@@ -21,13 +21,13 @@ public abstract class BaseActor {
     @Setter
     private Consumer<Event> pubHandler;
 
-    public BaseActor() {
+    public Actor() {
         this.inboundQueue = new LinkedBlockingQueue<>(128);
         this.id = String.format("%s-%s", this.getClass()
                                              .getSimpleName(), UUID.randomUUID()
                                                                    .toString()
                                                                    .substring(28));
-        postConstruct();
+        init();
     }
 
     void assignEvent(Event event) {
@@ -36,7 +36,7 @@ public abstract class BaseActor {
         }
     }
 
-    protected void postConstruct() {
+    protected void init() {
     }
 
     protected void publishEvent(Event event) {
