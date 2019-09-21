@@ -1,4 +1,4 @@
-package com.clianz.kube.httpserver;
+package com.clianz.actor.httpserver;
 
 import io.undertow.server.HttpServerExchange;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 @Data
 @AllArgsConstructor
 public class EndpointHandler {
-    private String endpoint;
-    private Consumer<HttpServerExchange> action;
+
+    private final String endpoint;
+    private final Consumer<HttpServerExchange> action;
 }

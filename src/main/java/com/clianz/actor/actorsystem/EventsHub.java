@@ -1,4 +1,4 @@
-package com.clianz.kube.actorsystem;
+package com.clianz.actor.actorsystem;
 
 import lombok.extern.slf4j.Slf4j;
 

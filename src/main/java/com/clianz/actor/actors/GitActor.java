@@ -1,7 +1,7 @@
-package com.clianz.kube.actors;
+package com.clianz.actor.actors;
 
-import com.clianz.kube.actorsystem.BaseActor;
-import com.clianz.kube.actorsystem.Event;
+import com.clianz.actor.actorsystem.BaseActor;
+import com.clianz.actor.actorsystem.Event;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -15,7 +15,7 @@ import org.eclipse.jgit.transport.SshTransport;
 import java.io.File;
 
 @Slf4j
-public class ListenerActor extends BaseActor {
+public class GitActor extends BaseActor {
 
     @Override
     protected void init() {

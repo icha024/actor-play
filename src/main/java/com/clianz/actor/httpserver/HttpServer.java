@@ -1,4 +1,4 @@
-package com.clianz.kube.httpserver;
+package com.clianz.actor.httpserver;
 
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;

@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.clianz.kube</groupId>
-    <artifactId>kube-deploy-sync</artifactId>
+    <groupId>com.clianz.actor</groupId>
+    <artifactId>actor-play</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>kube-deploy-sync</name>
-    <description>kube-deploy-sync</description>
+    <name>actor-play</name>
+    <description>actor-play</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <undertow.version>2.0.26.Final</undertow.version>
@@ -64,7 +64,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.clianz.kube.Application</mainClass>
+                                    <mainClass>com.clianz.actor.Application</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

@@ -1,9 +1,9 @@
-package com.clianz.kube.actors;
+package com.clianz.actor.actors;
 
-import com.clianz.kube.actorsystem.BaseActor;
-import com.clianz.kube.actorsystem.Event;
-import com.clianz.kube.httpserver.EndpointHandler;
-import com.clianz.kube.httpserver.HttpServer;
+import com.clianz.actor.actorsystem.BaseActor;
+import com.clianz.actor.actorsystem.Event;
+import com.clianz.actor.httpserver.EndpointHandler;
+import com.clianz.actor.httpserver.HttpServer;
 import io.undertow.server.HttpServerExchange;
 import lombok.extern.slf4j.Slf4j;
 
