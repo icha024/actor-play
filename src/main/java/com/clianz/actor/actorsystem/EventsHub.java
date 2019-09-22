@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -14,11 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class EventsHub {
+    private final Object doneLock = new Object();
 
     // FIXME: Make this config.
     private static final int BUFF_SIZE = 1024 * 1024;
-    private static final int THREAD_POOL_SIZE = 4;
-    private static final int WAIT_SLEEP_INTERVAL = 100;
+    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     private List<Actor> actors = new ArrayList<>();
     private EventHolder[] eventHolderArray = new EventHolder[BUFF_SIZE];
@@ -55,11 +57,15 @@ public class EventsHub {
         int pubIdx = (int) pubCounter.getAndIncrement() % BUFF_SIZE;
 //        log.debug("Pub to Idx: {}", pubIdx);
         eventHolderArray[pubIdx].setEvent(event);
+        synchronized (doneLock) {
+            doneLock.notify();
+        }
         return true;
     }
 
     public void start() {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE,
+//                60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024*1024));
                 60, TimeUnit.SECONDS, new BlockingTransferQueue<>());
         executor.prestartAllCoreThreads();
 
@@ -67,9 +73,11 @@ public class EventsHub {
         while (true) {
             if (currentSubIdx == pubCounter.get()) {
                 try {
-                    Thread.sleep(WAIT_SLEEP_INTERVAL);
+                    synchronized (doneLock) {
+                        doneLock.wait();
+                    }
                 } catch (InterruptedException e) {
-                    log.warn("Sleep interrupted, {}", e.getMessage());
+                    log.debug("Wait interrupted, {}", e.getMessage());
                 }
                 continue;
             }
